@@ -74,7 +74,30 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        score = 0
+
+        # # Maximize distance from pacman to ghost
+        # newGhostPositions = successorGameState.getGhostPositions()
+        # ghostDistances = [manhattanDistance(newPos, ghostPosition) for ghostPosition in newGhostPositions]
+        # closestGhost = min(ghostDistances)
+
+        closestGhostPosition = newGhostStates[0].configuration.pos
+        closestGhost = manhattanDistance(newPos, closestGhostPosition)
+
+        # Minimize distance from pacman to food
+        newFoodPositions = newFood.asList()
+        foodDistances = [manhattanDistance(newPos, foodPosition) for foodPosition in newFoodPositions]
+
+        if len(foodDistances) == 0:
+            return 0
+
+        closestFood = min(foodDistances)
+
+        # Stop action would reduce score because of the pacman's timer constraint
+        if action == 'Stop':
+            score -= 50
+
+        return successorGameState.getScore() + closestGhost/(closestFood * 10) + score
 
 def scoreEvaluationFunction(currentGameState):
     """
