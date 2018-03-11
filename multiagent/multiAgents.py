@@ -129,6 +129,7 @@ class MultiAgentSearchAgent(Agent):
         self.index = 0 # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+        self.constant_depth = int(depth)
         self.level = 0
 
 class MinimaxAgent(MultiAgentSearchAgent):
@@ -168,21 +169,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
         2. Max-agent
         3. Min-agent
         """
-        # WORKING STUFF, KEEP THIS FOR NOW
-        # if gameState.state in gameState.problem.evaluation:
-        #     if self.index == 0:
-        #         self.depth -= 1
-        #
-        #     if self.depth == 0:
-        #         # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
-        #         return [gameState.getScore(), ""]
-
-        # NOT WORK FOR SOME 7-* and 8 cases ...
         try:
             if self.evaluationFunction(gameState) >= 0 or self.evaluationFunction(gameState) < 0:
                 if self.index == 0:
                     self.depth -= 1
+                # print "depth=",self.depth
                 if self.depth == 0:
+                    # print " --> FOUND new score:", gameState.getScore()
+                    self.depth = self.constant_depth
                     return [gameState.getScore(), ""]
 
         except Exception:
@@ -211,6 +205,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         max_action = ""
 
         successor_agent_level = self.level + 1
+        # print "   MAX---self.level=", self.level
         # print "   MAX---self.level=", self.level, " state=", gameState.state
 
         for action in legalMoves:
@@ -244,6 +239,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         successor_agent_level = self.level + 1
         # print "   MIN---self.level=", self.level, " state=", gameState.state
+        # print "   MIN---self.level=", self.level
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(self.index, action)
