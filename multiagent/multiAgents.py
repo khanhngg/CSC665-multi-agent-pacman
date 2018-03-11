@@ -15,6 +15,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
+import copy
 
 from game import Agent
 
@@ -128,6 +129,7 @@ class MultiAgentSearchAgent(Agent):
         self.index = 0 # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+        self.level = 0
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -152,7 +154,141 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        # legalMoves = gameState.getLegalActions(self.index)
+
+        # for action in legalMoves:
+        #     print "  > action=", action
+        #     successor = gameState.generateSuccessor(self.index, action)
+        #     print "  >>> successor=", successor
+        #     if gameState.isWin():
+        #         return self.evaluationFunction
+        #
+        #     # Max-agent: Pacman has index = 0
+        #     if self.index == 0:
+        #         return 0
+        #
+        #     # Min-agent:Ghost has index > 0
+        #     if self.index > 0:
+        #         return 1
+
+        # scores = [get_value(gameState) for action in legalMoves]
+        # bestScore = max(scores)
+        # bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        # chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        #
+
+        # chosenIndex = 0
+        # score = float("-inf")
+        # for index in len(legalMoves):
+        #     currentScore = get_value(self, gameState)
+        #     if currentScore > score:
+        #         score = currentScore
+        #         chosenIndex = index
+
+        # scores = [self.get_value(gameState) for action in legalMoves]
+
+        # bestScore = max(scores)
+
+
+        # chosenIndex = 0
+        # for index in range(len(scores)):
+        #     print "----> scores[index]=", scores[index]
+        #     if scores[index] == bestScore:
+        #         chosenIndex = index
+
+        # print legalMoves[chosenIndex]
+        print "==================================="
+        print "  depth=", self.depth
+        print "  gameState.getNumAgents()=", gameState.getNumAgents()
+
+        result = self.get_value(gameState)
+        print "====> result: value=", result[0], " action=", result[1]
+        return result[1]
+
+    def get_value(self, gameState):
+        # Current state is among the winning states
+        # if gameState.isWin():
+        #     print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+        #     return [gameState.getScore(), ""]
+
+        if gameState.state in gameState.problem.evaluation:
+            if self.depth == 0:
+            # return [gameState.problem.evaluation[gameState.state], ""]
+                print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+                return [gameState.getScore(), ""]
+
+        if gameState.isLose():
+            return None
+
+        # Max-agent: Pacman has index = 0
+        if self.index == 0:
+            self.depth -= 1
+            return self.max_value(gameState)
+
+        # Min-agent:Ghost has index > 0
+        else:
+            self.depth -= 1
+            return self.min_value(gameState)
+
+    def max_value(self, gameState):
+        legalMoves = gameState.getLegalActions(self.index)
+        value = float("-inf")
+        max_action = ""
+
+        successor_agent_level = self.level + 1
+        print "   MAX---self.level=", self.level, " state=", gameState.state
+
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(self.index, action)
+            successor_agent = copy.deepcopy(self)
+
+            # ghost agent has > 0 index
+            successor_agent.level = successor_agent_level
+            if successor_agent_level % gameState.problem.numAgents != 0:
+                successor_agent.index = 1
+            else:
+                successor_agent.index = 0
+
+            print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
+
+            current_value = successor_agent.get_value(successor)
+            # current_value = self.get_value(successor)
+            if current_value is not None and current_value[0] > value:
+                value = current_value[0]
+                max_action = action
+
+        # print " ---> max val=", value, " action=", max_action
+        return [value, max_action]
+
+    def min_value(self, gameState):
+        legalMoves = gameState.getLegalActions(self.index)
+        value = float("inf")
+        min_action = ""
+
+        successor_agent_level = self.level + 1
+        print "   MIN---self.level=", self.level, " state=", gameState.state
+
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(self.index, action)
+            successor_agent = copy.deepcopy(self)
+
+            # pacman agent has 0 index
+            successor_agent.level = successor_agent_level
+            if successor_agent_level % gameState.problem.numAgents != 0:
+                successor_agent.index = 1
+            else:
+                successor_agent.index = 0
+
+            current_value = successor_agent.get_value(successor)
+            # current_value = self.get_value(successor)
+            if current_value is not None and current_value[0] < value:
+                value = current_value[0]
+                min_action = action
+
+        # print " ---> min val=", value, " action=", min_action
+        return [value, min_action]
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
