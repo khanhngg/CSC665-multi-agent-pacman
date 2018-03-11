@@ -166,29 +166,29 @@ class MinimaxAgent(MultiAgentSearchAgent):
         3. Min-agent
         """
         # WORKING STUFF, KEEP THIS FOR NOW
-        if gameState.state in gameState.problem.evaluation:
-            if self.index == 0:
-                self.depth -= 1
-
-            if self.depth == 0:
-                # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
-                return [gameState.getScore(), ""]
-
-        # NOT WORK FOR 7-2* and 8 cases ...
-        # try:
-        #     if self.evaluationFunction(gameState):
-        #         if self.index == 0:
-        #             self.depth -= 1
+        # if gameState.state in gameState.problem.evaluation:
+        #     if self.index == 0:
+        #         self.depth -= 1
         #
-        #         if self.depth == 0:
-        #             # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
-        #             return [gameState.getScore(), ""]
-        #
-        # except Exception:
-        #     pass
+        #     if self.depth == 0:
+        #         # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+        #         return [gameState.getScore(), ""]
+
+        # NOT WORK FOR SOME 7-* and 8 cases ...
+        try:
+            if self.evaluationFunction(gameState):
+                if self.index == 0:
+                    self.depth -= 1
+
+                if self.depth == 0:
+                    print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+                    return [gameState.getScore(), ""]
+
+        except Exception:
+            pass
 
         if gameState.isWin():
-            # print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+            print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
             return [gameState.getScore(), ""]
 
         if gameState.isLose():
@@ -211,7 +211,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         max_action = ""
 
         successor_agent_level = self.level + 1
-        # print "   MAX---self.level=", self.level, " state=", gameState.state
+        print "   MAX---self.level=", self.level, " state=", gameState.state
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(self.index, action)
@@ -224,15 +224,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
             else:
                 successor_agent.index = 0
 
-            # print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
+            print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
 
             current_value = successor_agent.get_value(successor)
-            # current_value = self.get_value(successor)
             if current_value is not None and current_value[0] > value:
                 value = current_value[0]
                 max_action = action
 
-        # print " ---> max val=", value, " action=", max_action
+        print " ---> max val=", value, " action=", max_action
         return [value, max_action]
 
     def min_value(self, gameState):
@@ -244,7 +243,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         min_action = ""
 
         successor_agent_level = self.level + 1
-        # print "   MIN---self.level=", self.level, " state=", gameState.state
+        print "   MIN---self.level=", self.level, " state=", gameState.state
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(self.index, action)
@@ -257,13 +256,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
             else:
                 successor_agent.index = 0
 
+            print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
+
             current_value = successor_agent.get_value(successor)
-            # current_value = self.get_value(successor)
             if current_value is not None and current_value[0] < value:
                 value = current_value[0]
                 min_action = action
 
-        # print " ---> min val=", value, " action=", min_action
+        print " ---> min val=", value, " action=", min_action
         return [value, min_action]
 
 
