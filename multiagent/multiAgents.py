@@ -166,25 +166,26 @@ class MinimaxAgent(MultiAgentSearchAgent):
         3. Min-agent
         """
         # WORKING STUFF, KEEP THIS FOR NOW
-        # if gameState.state in gameState.problem.evaluation:
-        #     if self.index == 0:
-        #         self.depth -= 1
+        if gameState.state in gameState.problem.evaluation:
+            if self.index == 0:
+                self.depth -= 1
+
+            if self.depth == 0:
+                # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+                return [gameState.getScore(), ""]
+
+        # NOT WORK FOR 7-2* and 8 cases ...
+        # try:
+        #     if self.evaluationFunction(gameState):
+        #         if self.index == 0:
+        #             self.depth -= 1
         #
-        #     if self.depth == 0:
-        #         # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
-        #         return [gameState.getScore(), ""]
-
-        try:
-            if self.evaluationFunction(gameState):
-                if self.index == 0:
-                    self.depth -= 1
-
-                if self.depth == 0:
-                    # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
-                    return [gameState.getScore(), ""]
-
-        except Exception:
-            pass
+        #         if self.depth == 0:
+        #             # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+        #             return [gameState.getScore(), ""]
+        #
+        # except Exception:
+        #     pass
 
         if gameState.isWin():
             # print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
