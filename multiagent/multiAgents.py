@@ -211,24 +211,28 @@ class MinimaxAgent(MultiAgentSearchAgent):
         # if gameState.isWin():
         #     print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
         #     return [gameState.getScore(), ""]
-
+        print "    --> get_value: self.depth=", self.depth
         if gameState.state in gameState.problem.evaluation:
+            self.depth -= 1
             if self.depth == 0:
             # return [gameState.problem.evaluation[gameState.state], ""]
                 print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
                 return [gameState.getScore(), ""]
+
+        if gameState.isWin():
+            print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+            return [gameState.getScore(), ""]
+
 
         if gameState.isLose():
             return None
 
         # Max-agent: Pacman has index = 0
         if self.index == 0:
-            self.depth -= 1
             return self.max_value(gameState)
 
         # Min-agent:Ghost has index > 0
         else:
-            self.depth -= 1
             return self.min_value(gameState)
 
     def max_value(self, gameState):
