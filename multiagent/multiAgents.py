@@ -155,26 +155,36 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        # print legalMoves[chosenIndex]
-        # print "==================================="
-        # print "  depth=", self.depth
-        # print "  gameState.getNumAgents()=", gameState.getNumAgents()
-
         result = self.get_value(gameState)
-        # print "====> result: value=", result[0], " action=", result[1]
         return result[1]
 
     def get_value(self, gameState):
-        # Current state is among the winning states
+        """
+        Returns value as pair of [score, action] based on the different cases:
+        1. Terminal state
+        2. Max-agent
+        3. Min-agent
+        """
+        # WORKING STUFF, KEEP THIS FOR NOW
+        # if gameState.state in gameState.problem.evaluation:
+        #     if self.index == 0:
+        #         self.depth -= 1
+        #
+        #     if self.depth == 0:
+        #         # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+        #         return [gameState.getScore(), ""]
 
-        # print "   >>>> get_value: self.depth=", self.depth
-        if gameState.state in gameState.problem.evaluation:
-            if self.index == 0:
-                self.depth -= 1
+        try:
+            if self.evaluationFunction(gameState):
+                if self.index == 0:
+                    self.depth -= 1
 
-            if self.depth == 0:
-                # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
-                return [gameState.getScore(), ""]
+                if self.depth == 0:
+                    # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+                    return [gameState.getScore(), ""]
+
+        except Exception:
+            pass
 
         if gameState.isWin():
             # print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
@@ -192,6 +202,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return self.min_value(gameState)
 
     def max_value(self, gameState):
+        """
+        Returns the max utility value for max-agent
+        """
         legalMoves = gameState.getLegalActions(self.index)
         value = float("-inf")
         max_action = ""
@@ -205,7 +218,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
             # ghost agent has > 0 index
             successor_agent.level = successor_agent_level
-            if successor_agent_level % gameState.problem.numAgents != 0:
+            if successor_agent_level % gameState.getNumAgents() != 0:
                 successor_agent.index = 1
             else:
                 successor_agent.index = 0
@@ -222,6 +235,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return [value, max_action]
 
     def min_value(self, gameState):
+        """
+        Returns the min utility value for min-agent
+        """
         legalMoves = gameState.getLegalActions(self.index)
         value = float("inf")
         min_action = ""
@@ -235,7 +251,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
             # pacman agent has 0 index
             successor_agent.level = successor_agent_level
-            if successor_agent_level % gameState.problem.numAgents != 0:
+            if successor_agent_level % gameState.getNumAgents() != 0:
                 successor_agent.index = 1
             else:
                 successor_agent.index = 0
