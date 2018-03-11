@@ -155,48 +155,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        # legalMoves = gameState.getLegalActions(self.index)
-
-        # for action in legalMoves:
-        #     print "  > action=", action
-        #     successor = gameState.generateSuccessor(self.index, action)
-        #     print "  >>> successor=", successor
-        #     if gameState.isWin():
-        #         return self.evaluationFunction
-        #
-        #     # Max-agent: Pacman has index = 0
-        #     if self.index == 0:
-        #         return 0
-        #
-        #     # Min-agent:Ghost has index > 0
-        #     if self.index > 0:
-        #         return 1
-
-        # scores = [get_value(gameState) for action in legalMoves]
-        # bestScore = max(scores)
-        # bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        # chosenIndex = random.choice(bestIndices) # Pick randomly among the best
-        #
-
-        # chosenIndex = 0
-        # score = float("-inf")
-        # for index in len(legalMoves):
-        #     currentScore = get_value(self, gameState)
-        #     if currentScore > score:
-        #         score = currentScore
-        #         chosenIndex = index
-
-        # scores = [self.get_value(gameState) for action in legalMoves]
-
-        # bestScore = max(scores)
-
-
-        # chosenIndex = 0
-        # for index in range(len(scores)):
-        #     print "----> scores[index]=", scores[index]
-        #     if scores[index] == bestScore:
-        #         chosenIndex = index
-
         # print legalMoves[chosenIndex]
         # print "==================================="
         # print "  depth=", self.depth
@@ -211,15 +169,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         # print "   >>>> get_value: self.depth=", self.depth
         if gameState.state in gameState.problem.evaluation:
-            # self.depth -= 1
             if self.index == 0:
                 self.depth -= 1
 
             if self.depth == 0:
                 # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
                 return [gameState.getScore(), ""]
-            # elif self.index == 0:
-            #     self.depth -= 1
 
         if gameState.isWin():
             # print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
