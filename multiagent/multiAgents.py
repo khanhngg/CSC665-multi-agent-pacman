@@ -198,31 +198,32 @@ class MinimaxAgent(MultiAgentSearchAgent):
         #         chosenIndex = index
 
         # print legalMoves[chosenIndex]
-        print "==================================="
-        print "  depth=", self.depth
-        print "  gameState.getNumAgents()=", gameState.getNumAgents()
+        # print "==================================="
+        # print "  depth=", self.depth
+        # print "  gameState.getNumAgents()=", gameState.getNumAgents()
 
         result = self.get_value(gameState)
-        print "====> result: value=", result[0], " action=", result[1]
+        # print "====> result: value=", result[0], " action=", result[1]
         return result[1]
 
     def get_value(self, gameState):
         # Current state is among the winning states
-        # if gameState.isWin():
-        #     print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
-        #     return [gameState.getScore(), ""]
-        print "    --> get_value: self.depth=", self.depth
+
+        # print "   >>>> get_value: self.depth=", self.depth
         if gameState.state in gameState.problem.evaluation:
-            self.depth -= 1
+            # self.depth -= 1
+            if self.index == 0:
+                self.depth -= 1
+
             if self.depth == 0:
-            # return [gameState.problem.evaluation[gameState.state], ""]
-                print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+                # print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
                 return [gameState.getScore(), ""]
+            # elif self.index == 0:
+            #     self.depth -= 1
 
         if gameState.isWin():
-            print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
+            # print "   WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
             return [gameState.getScore(), ""]
-
 
         if gameState.isLose():
             return None
@@ -241,7 +242,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         max_action = ""
 
         successor_agent_level = self.level + 1
-        print "   MAX---self.level=", self.level, " state=", gameState.state
+        # print "   MAX---self.level=", self.level, " state=", gameState.state
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(self.index, action)
@@ -254,7 +255,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             else:
                 successor_agent.index = 0
 
-            print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
+            # print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
 
             current_value = successor_agent.get_value(successor)
             # current_value = self.get_value(successor)
@@ -271,7 +272,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         min_action = ""
 
         successor_agent_level = self.level + 1
-        print "   MIN---self.level=", self.level, " state=", gameState.state
+        # print "   MIN---self.level=", self.level, " state=", gameState.state
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(self.index, action)
