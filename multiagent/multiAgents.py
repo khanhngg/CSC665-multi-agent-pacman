@@ -155,8 +155,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        print "depth=", self.depth
-        print "agents=", gameState.getNumAgents()
+        # print "depth=", self.depth
+        # print "agents=", gameState.getNumAgents()
 
         result = self.get_value(gameState)
         return result[1]
@@ -179,11 +179,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         # NOT WORK FOR SOME 7-* and 8 cases ...
         try:
-            if self.evaluationFunction(gameState) >= 0:
+            if self.evaluationFunction(gameState) >= 0 or self.evaluationFunction(gameState) < 0:
                 if self.index == 0:
                     self.depth -= 1
                 if self.depth == 0:
-                    print "   KINDA WIN STATE---self.level=", self.level, " state=", gameState.state, " SCORE=", gameState.getScore()
                     return [gameState.getScore(), ""]
 
         except Exception:
@@ -212,7 +211,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         max_action = ""
 
         successor_agent_level = self.level + 1
-        print "   MAX---self.level=", self.level, " state=", gameState.state
+        # print "   MAX---self.level=", self.level, " state=", gameState.state
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(self.index, action)
@@ -225,14 +224,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
             else:
                 successor_agent.index = 0
 
-            print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
+            # print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
 
             current_value = successor_agent.get_value(successor)
             if current_value is not None and current_value[0] > max_value:
                 max_value = current_value[0]
                 max_action = action
 
-        print " ---> max val=", max_value, " action=", max_action
+        # print " ---> max val=", max_value, " action=", max_action
         return [max_value, max_action]
 
     def min_value(self, gameState):
@@ -244,7 +243,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         min_action = ""
 
         successor_agent_level = self.level + 1
-        print "   MIN---self.level=", self.level, " state=", gameState.state
+        # print "   MIN---self.level=", self.level, " state=", gameState.state
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(self.index, action)
@@ -257,14 +256,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
             else:
                 successor_agent.index = 0
 
-            print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
+            # print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
 
             current_value = successor_agent.get_value(successor)
             if current_value is not None and current_value[0] < min_value:
                 min_value = current_value[0]
                 min_action = action
 
-        print " ---> min val=", min_value, " action=", min_action
+        # print " ---> min val=", min_value, " action=", min_action
         return [min_value, min_action]
 
 
