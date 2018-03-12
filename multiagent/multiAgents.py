@@ -77,11 +77,6 @@ class ReflexAgent(Agent):
         "*** YOUR CODE HERE ***"
         score = 0
 
-        # # Maximize distance from pacman to ghost
-        # newGhostPositions = successorGameState.getGhostPositions()
-        # ghostDistances = [manhattanDistance(newPos, ghostPosition) for ghostPosition in newGhostPositions]
-        # closestGhost = min(ghostDistances)
-
         closestGhostPosition = newGhostStates[0].configuration.pos
         closestGhost = manhattanDistance(newPos, closestGhostPosition)
 
@@ -156,111 +151,82 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        # print "depth=", self.depth
-        # print "agents=", gameState.getNumAgents()
+        # Format of result = [score, action]
+        result = self.get_value(gameState, 0, 0)
 
-        result = self.get_value(gameState)
+        # Return the action from result
         return result[1]
 
-    def get_value(self, gameState):
+    def get_value(self, gameState, index, depth):
         """
         Returns value as pair of [score, action] based on the different cases:
         1. Terminal state
         2. Max-agent
         3. Min-agent
         """
-        try:
-            if self.evaluationFunction(gameState) >= 0 or self.evaluationFunction(gameState) < 0:
-                if self.index == 0:
-                    self.depth -= 1
-                # print "depth=",self.depth
-                if self.depth == 0:
-                    # print " --> FOUND new score:", gameState.getScore()
-                    self.depth = self.constant_depth
-                    return [gameState.getScore(), ""]
-
-        except Exception:
-            pass
-
-        if gameState.isWin():
-            return [gameState.getScore(), ""]
-
-        if gameState.isLose():
-            return None
+        # Terminal states:
+        if len(gameState.getLegalActions(index)) == 0 or depth == self.depth:
+            return gameState.getScore(), ""
 
         # Max-agent: Pacman has index = 0
-        if self.index == 0:
-            return self.max_value(gameState)
+        if index == 0:
+            return self.max_value(gameState, index, depth)
 
         # Min-agent:Ghost has index > 0
         else:
-            return self.min_value(gameState)
+            return self.min_value(gameState, index, depth)
 
-    def max_value(self, gameState):
+    def max_value(self, gameState, index, depth):
         """
-        Returns the max utility value for max-agent
+        Returns the max utility value-action for max-agent
         """
-        legalMoves = gameState.getLegalActions(self.index)
+        legalMoves = gameState.getLegalActions(index)
         max_value = float("-inf")
         max_action = ""
 
-        successor_agent_level = self.level + 1
-        # print "   MAX---self.level=", self.level
-        # print "   MAX---self.level=", self.level, " state=", gameState.state
-
         for action in legalMoves:
-            successor = gameState.generateSuccessor(self.index, action)
-            successor_agent = copy.deepcopy(self)
+            successor = gameState.generateSuccessor(index, action)
+            successor_index = index + 1
+            successor_depth = depth
 
-            # ghost agent has > 0 index
-            successor_agent.level = successor_agent_level
-            if successor_agent_level % gameState.getNumAgents() != 0:
-                successor_agent.index = 1
-            else:
-                successor_agent.index = 0
+            # Update the successor agent's index and depth if it's pacman
+            if successor_index == gameState.getNumAgents():
+                successor_index = 0
+                successor_depth += 1
 
-            # print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
+            current_value = self.get_value(successor, successor_index, successor_depth)[0]
 
-            current_value = successor_agent.get_value(successor)
-            if current_value is not None and current_value[0] > max_value:
-                max_value = current_value[0]
+            if current_value > max_value:
+                max_value = current_value
                 max_action = action
 
-        # print " ---> max val=", max_value, " action=", max_action
-        return [max_value, max_action]
+        return max_value, max_action
 
-    def min_value(self, gameState):
+    def min_value(self, gameState, index, depth):
         """
-        Returns the min utility value for min-agent
+        Returns the min utility value-action for min-agent
         """
-        legalMoves = gameState.getLegalActions(self.index)
+        legalMoves = gameState.getLegalActions(index)
         min_value = float("inf")
         min_action = ""
 
-        successor_agent_level = self.level + 1
-        # print "   MIN---self.level=", self.level, " state=", gameState.state
-        # print "   MIN---self.level=", self.level
-
         for action in legalMoves:
-            successor = gameState.generateSuccessor(self.index, action)
-            successor_agent = copy.deepcopy(self)
+            successor = gameState.generateSuccessor(index, action)
+            successor_index = index + 1
+            successor_depth = depth
 
-            # pacman agent has 0 index
-            successor_agent.level = successor_agent_level
-            if successor_agent_level % gameState.getNumAgents() != 0:
-                successor_agent.index = 1
-            else:
-                successor_agent.index = 0
+            # Update the successor agent's index and depth if it's pacman
+            if successor_index == gameState.getNumAgents():
+                successor_index = 0
+                successor_depth += 1
 
-            # print "   -----successor_agent.level=",successor_agent.level, " successor_agent.index=",successor_agent.index
+            current_value = self.get_value(successor, successor_index, successor_depth)[0]
 
-            current_value = successor_agent.get_value(successor)
-            if current_value is not None and current_value[0] < min_value:
-                min_value = current_value[0]
+            if current_value < min_value:
+                min_value = current_value
                 min_action = action
 
-        # print " ---> min val=", min_value, " action=", min_action
-        return [min_value, min_action]
+        return min_value, min_action
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):

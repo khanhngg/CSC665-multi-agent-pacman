@@ -178,6 +178,7 @@ class GradingAgent(Agent):
                 studentOptimalAction = True
             else:
                 self.actionsConsistentWithOptimal[i] = False
+
             if studentAction[1] == int(optimalActions[i][1]):
                 curRightStatesExplored = True
         if not curRightStatesExplored and self.wrongStatesExplored < 0:
