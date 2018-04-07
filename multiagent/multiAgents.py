@@ -234,12 +234,112 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Your minimax agent with alpha-beta pruning (question 3)
     """
 
-    def getAction(self, gameState):
+    def getAction(self, game_state):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        # Format of result = [action, score]
+        # Initial state: index = 0, depth = 0, alpha = -infinity, beta = +infinity
+        result = self.getBestActionAndScore(game_state, 0, 0, float("-inf"), float("inf"))
+
+        # Return the action from result
+        return result[0]
+
+    def getBestActionAndScore(self, game_state, index, depth, alpha, beta):
+        """
+        Returns value as pair of [action, score] based on the different cases:
+        1. Terminal state
+        2. Max-agent
+        3. Min-agent
+        """
+        # Terminal states:
+        if len(game_state.getLegalActions(index)) == 0 or depth == self.depth:
+            return "", game_state.getScore()
+
+        # Max-agent: Pacman has index = 0
+        if index == 0:
+            return self.max_value(game_state, index, depth, alpha, beta)
+
+        # Min-agent:Ghost has index > 0
+        else:
+            return self.min_value(game_state, index, depth, alpha, beta)
+
+    def max_value(self, game_state, index, depth, alpha, beta):
+        """
+        Returns the max utility action-score for max-agent with alpha-beta pruning
+        """
+        legalMoves = game_state.getLegalActions(index)
+        max_value = float("-inf")
+        max_action = ""
+
+        for action in legalMoves:
+            successor = game_state.generateSuccessor(index, action)
+            successor_index = index + 1
+            successor_depth = depth
+
+            # Update the successor agent's index and depth if it's pacman
+            if successor_index == game_state.getNumAgents():
+                successor_index = 0
+                successor_depth += 1
+
+            # Calculate the action-score for the current successor
+            current_action, current_value \
+                = self.getBestActionAndScore(successor, successor_index, successor_depth, alpha, beta)
+
+            # Update max_value and max_action for maximizer agent
+            if current_value > max_value:
+                max_value = current_value
+                max_action = action
+
+            # Update alpha value for current maximizer
+            alpha = max(alpha, max_value)
+
+            # Pruning: Returns max_value because next possible max_value(s) of maximizer
+            # can get worse for beta value of minimizer when coming back up
+            if max_value > beta:
+                return max_action, max_value
+
+        return max_action, max_value
+
+    def min_value(self, game_state, index, depth, alpha, beta):
+        """
+        Returns the min utility action-score for min-agent with alpha-beta pruning
+        """
+        legalMoves = game_state.getLegalActions(index)
+        min_value = float("inf")
+        min_action = ""
+
+        for action in legalMoves:
+            successor = game_state.generateSuccessor(index, action)
+            successor_index = index + 1
+            successor_depth = depth
+
+            # Update the successor agent's index and depth if it's pacman
+            if successor_index == game_state.getNumAgents():
+                successor_index = 0
+                successor_depth += 1
+
+            # Calculate the action-score for the current successor
+            current_action, current_value \
+                = self.getBestActionAndScore(successor, successor_index, successor_depth, alpha, beta)
+
+            # Update min_value and min_action for minimizer agent
+            if current_value < min_value:
+                min_value = current_value
+                min_action = action
+
+            # Update beta value for current minimizer
+            beta = min(beta, min_value)
+
+            # Pruning: Returns min_value because next possible min_value(s) of minimizer
+            # can get worse for alpha value of maximizer when coming back up
+            if min_value < alpha:
+                return min_action, min_value
+
+        return min_action, min_value
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
