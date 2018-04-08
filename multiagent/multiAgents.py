@@ -19,6 +19,7 @@ import copy
 
 from game import Agent
 
+
 class ReflexAgent(Agent):
     """
       A reflex agent chooses an action at each choice point by examining
@@ -28,7 +29,6 @@ class ReflexAgent(Agent):
       it in any way you see fit, so long as you don't touch our method
       headers.
     """
-
 
     def getAction(self, gameState):
         """
@@ -46,7 +46,7 @@ class ReflexAgent(Agent):
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
         "Add more of your code here if you want to"
 
@@ -93,7 +93,8 @@ class ReflexAgent(Agent):
         if action == 'Stop':
             score -= 50
 
-        return successorGameState.getScore() + closestGhost/(closestFood * 10) + score
+        return successorGameState.getScore() + closestGhost / (closestFood * 10) + score
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -104,6 +105,7 @@ def scoreEvaluationFunction(currentGameState):
       (not reflex agents).
     """
     return currentGameState.getScore()
+
 
 class MultiAgentSearchAgent(Agent):
     """
@@ -120,12 +122,13 @@ class MultiAgentSearchAgent(Agent):
       is another abstract class.
     """
 
-    def __init__(self, evalFn = 'scoreEvaluationFunction', depth = '2'):
-        self.index = 0 # Pacman is always agent index 0
+    def __init__(self, evalFn='scoreEvaluationFunction', depth='2'):
+        self.index = 0  # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
         self.constant_depth = int(depth)
         self.level = 0
+
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -445,86 +448,44 @@ def betterEvaluationFunction(currentGameState):
 
     # Setup information to be used as arguments in evaluation function
     pacman_position = currentGameState.getPacmanPosition()
-    pacman_state = currentGameState.getPacmanState()
-
     ghost_positions = currentGameState.getGhostPositions()
-    ghost_states = currentGameState.getGhostStates()
 
     food_list = currentGameState.getFood().asList()
-    capsule_list = currentGameState.getCapsules()
+    food_count = len(food_list)
+    capsule_count = len(currentGameState.getCapsules())
+    closest_food = 0
 
-    closest_ghost = 99999
-    closest_scared_ghost = 99999
-    num_scared_ghosts = 0
+    game_score = currentGameState.getScore()
 
-    stop_action_score = 0
-
-    # Find distance to closest_food
+    # Find distances from pacman to all food
     food_distances = [manhattanDistance(pacman_position, food_position) for food_position in food_list]
 
-    if len(food_distances) == 0:
-        closest_food = 1
-    else:
+    # Set value for closest food if there is still food left
+    # Otherwise, if no food left, it's the same meaning as if closest distance to food is 0 (default value)
+    if food_count > 0:
         closest_food = min(food_distances)
 
-    # Find distances from pacman to capsule(s) (power pellets)
-    closest_capsule = 0
-    capsule_distances = [manhattanDistance(pacman_position, capsule_position) for capsule_position in capsule_list]
-    if len(capsule_distances) == 0:
-        closest_capsule = 100
-    else:
-        closest_capsule = min(capsule_distances)
-
     # Find distances from pacman to ghost(s)
-    for ghost_state in ghost_states:
-        ghost_position = ghost_state.getPosition()
+    for ghost_position in ghost_positions:
         ghost_distance = manhattanDistance(pacman_position, ghost_position)
 
-        # If scared ghost, find the closest distance from pacman to it
-        if ghost_state.scaredTimer > 0:
-            num_scared_ghosts += 1
+        # If ghost is too close to pacman, prioritize escaping instead of eating the closest food
+        # by resetting the value for closest distance to food
+        if ghost_distance < 2:
+            closest_food = 99999
 
-            # Update min distance to scared ghost
-            if ghost_distance < closest_scared_ghost:
-                closest_scared_ghost = ghost_distance
-        else:
-            # Update min distance to penalty ghost
-            if ghost_distance < closest_ghost:
-                closest_ghost = ghost_distance
+    features = [closest_food,
+                game_score,
+                food_count,
+                capsule_count]
 
-    # No penalty ghosts left
-    if closest_ghost == 99999:
-        closest_ghost = 1
-    elif closest_ghost <= 2:
-        closest_ghost = 99999
-
-    # Find scared time of closestScaredGhost
-    # ghost_scared_times = [ghost_state.scaredTimer for ghost_state in ghost_states if ghost_state.scaredTimer > 0]
-
-    # Add penalty for Stop action
-    if pacman_state.configuration.direction == 'Stop':
-        stop_action_score = 100
-
-    features = [closest_food / closest_ghost,
-                closest_scared_ghost,
-                num_scared_ghosts,
-
-                currentGameState.getScore(),
-                stop_action_score,
-
-                len(capsule_list),
-                currentGameState.getNumFood()]
-
-    weights = [-100,
-               20,
-               20,
-               10,
-               1,
+    weights = [1,
                -10,
-               -10]
+               100,
+               10]
 
-    return sum([feature * weight for feature, weight in zip(features, weights)])
+    return (-1) * sum([feature * weight for feature, weight in zip(features, weights)])
+
 
 # Abbreviation
 better = betterEvaluationFunction
-
