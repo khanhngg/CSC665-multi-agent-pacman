@@ -453,7 +453,7 @@ def betterEvaluationFunction(currentGameState):
     food_list = currentGameState.getFood().asList()
     food_count = len(food_list)
     capsule_count = len(currentGameState.getCapsules())
-    closest_food = 0
+    closest_food = 1
 
     game_score = currentGameState.getScore()
 
@@ -461,7 +461,6 @@ def betterEvaluationFunction(currentGameState):
     food_distances = [manhattanDistance(pacman_position, food_position) for food_position in food_list]
 
     # Set value for closest food if there is still food left
-    # Otherwise, if no food left, it's the same meaning as if closest distance to food is 0 (default value)
     if food_count > 0:
         closest_food = min(food_distances)
 
@@ -474,17 +473,17 @@ def betterEvaluationFunction(currentGameState):
         if ghost_distance < 2:
             closest_food = 99999
 
-    features = [closest_food,
+    features = [1.0 / closest_food,
                 game_score,
                 food_count,
                 capsule_count]
 
-    weights = [1,
-               -10,
-               100,
-               10]
+    weights = [10,
+               200,
+               -100,
+               -10]
 
-    return (-1) * sum([feature * weight for feature, weight in zip(features, weights)])
+    return sum([feature * weight for feature, weight in zip(features, weights)])
 
 
 # Abbreviation
