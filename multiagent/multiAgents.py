@@ -368,7 +368,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
         # Terminal states:
         if len(game_state.getLegalActions(index)) == 0 or depth == self.depth:
-            return "", game_state.getScore()
+            return "", self.evaluationFunction(game_state)
 
         # Max-agent: Pacman has index = 0
         if index == 0:
@@ -433,6 +433,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         return expected_action, expected_value
 
+
 def betterEvaluationFunction(currentGameState):
     """
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -441,7 +442,88 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    # Setup information to be used as arguments in evaluation function
+    pacman_position = currentGameState.getPacmanPosition()
+    pacman_state = currentGameState.getPacmanState()
+
+    ghost_positions = currentGameState.getGhostPositions()
+    ghost_states = currentGameState.getGhostStates()
+
+    food_list = currentGameState.getFood().asList()
+    capsule_list = currentGameState.getCapsules()
+
+    closest_ghost = 99999
+    closest_scared_ghost = 99999
+    num_scared_ghosts = 0
+
+    stop_action_score = 0
+
+    # Find distance to closest_food
+    food_distances = [manhattanDistance(pacman_position, food_position) for food_position in food_list]
+
+    if len(food_distances) == 0:
+        closest_food = 1
+    else:
+        closest_food = min(food_distances)
+
+    # Find distances from pacman to capsule(s) (power pellets)
+    closest_capsule = 0
+    capsule_distances = [manhattanDistance(pacman_position, capsule_position) for capsule_position in capsule_list]
+    if len(capsule_distances) == 0:
+        closest_capsule = 100
+    else:
+        closest_capsule = min(capsule_distances)
+
+    # Find distances from pacman to ghost(s)
+    for ghost_state in ghost_states:
+        ghost_position = ghost_state.getPosition()
+        ghost_distance = manhattanDistance(pacman_position, ghost_position)
+
+        # If scared ghost, find the closest distance from pacman to it
+        if ghost_state.scaredTimer > 0:
+            num_scared_ghosts += 1
+
+            # Update min distance to scared ghost
+            if ghost_distance < closest_scared_ghost:
+                closest_scared_ghost = ghost_distance
+        else:
+            # Update min distance to penalty ghost
+            if ghost_distance < closest_ghost:
+                closest_ghost = ghost_distance
+
+    # No penalty ghosts left
+    if closest_ghost == 99999:
+        closest_ghost = 1
+    elif closest_ghost <= 2:
+        closest_ghost = 99999
+
+    # Find scared time of closestScaredGhost
+    # ghost_scared_times = [ghost_state.scaredTimer for ghost_state in ghost_states if ghost_state.scaredTimer > 0]
+
+    # Add penalty for Stop action
+    if pacman_state.configuration.direction == 'Stop':
+        stop_action_score = 100
+
+    features = [closest_food / closest_ghost,
+                closest_scared_ghost,
+                num_scared_ghosts,
+
+                currentGameState.getScore(),
+                stop_action_score,
+
+                len(capsule_list),
+                currentGameState.getNumFood()]
+
+    weights = [-100,
+               20,
+               20,
+               10,
+               1,
+               -10,
+               -10]
+
+    return sum([feature * weight for feature, weight in zip(features, weights)])
 
 # Abbreviation
 better = betterEvaluationFunction
