@@ -483,6 +483,7 @@ def betterEvaluationFunction(currentGameState):
                -100,
                -10]
 
+    # Linear combination of features
     return sum([feature * weight for feature, weight in zip(features, weights)])
 
 
